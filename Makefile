@@ -3,7 +3,7 @@ BUILD_DIR = build
 FOUNDRY_DIR = ../..
 PRODUCTION_DIR = ${FOUNDRY_DIR}/scripts
 DEVELOPMENT_DIR = ${FOUNDRY_DIR}/scripts_
-UGLIFY = uglifyjs --unsafe
+UGLIFY = uglifyjs --unsafe -nc
 
 BASE_FILES = ${SRC_DIR}/jquery.require.js\
 	${SRC_DIR}/jquery.require.script.js\
