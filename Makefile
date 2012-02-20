@@ -8,7 +8,9 @@ UGLIFY = uglifyjs --unsafe -nc
 BASE_FILES = ${SRC_DIR}/jquery.require.js\
 	${SRC_DIR}/jquery.require.script.js\
 	${SRC_DIR}/jquery.require.stylesheet.js\
-	${SRC_DIR}/jquery.require.template.js
+	${SRC_DIR}/jquery.require.template.js\
+	${SRC_DIR}/jquery.require.library.js
+
 
 all: premake module require min foundry
 
