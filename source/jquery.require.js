@@ -89,6 +89,12 @@ $.require = (function() {
 			batch.options = $.extend({}, self.defaultOptions, options);
 		},
 
+		status: function() {
+			$.each(self.batches, function(i, batch){
+				console.log(batch.id, batch.state(), batch);
+			});
+		},
+
 		loaders: {},
 
 		addLoader: function(name, factory) {
