@@ -91,7 +91,11 @@ $.require = (function() {
 
 		status: function() {
 			$.each(self.batches, function(i, batch){
-				console.log(batch.id, batch.state(), batch);
+				console.info(batch.id, batch.state(), batch);
+
+				$.each(batch.taskList, function(i, task){
+					console.log('\t [' + task.name + ']', task.state());
+				});
 			});
 		},
 
