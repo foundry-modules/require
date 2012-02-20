@@ -31,4 +31,10 @@ foundry:
 		${FOUNDRY_DIR}/build/foundry_outro.js \
 		> ${DEVELOPMENT_DIR}/require.js
 
+	cat ${FOUNDRY_DIR}/build/foundry_intro.js \
+		${BUILD_DIR}/jquery.module.js \
+		${FOUNDRY_DIR}/build/foundry_outro.js \
+		> ${DEVELOPMENT_DIR}/module.js
+
 	${UGLIFY} ${DEVELOPMENT_DIR}/require.js > ${PRODUCTION_DIR}/require.js
+	${UGLIFY} ${DEVELOPMENT_DIR}/module.js > ${PRODUCTION_DIR}/module.js
