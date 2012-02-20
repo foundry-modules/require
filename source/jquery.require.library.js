@@ -15,7 +15,7 @@ $.require.addLoader('library', function() {
 
 	var batch = this,
 		args = $.makeArray(arguments),
-		options,
+		options = {},
 		names;
 
 	// Expand arguments into its actual definition
