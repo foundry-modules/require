@@ -9,6 +9,7 @@ BASE_FILES = ${SRC_DIR}/jquery.require.js\
 	${SRC_DIR}/jquery.require.script.js\
 	${SRC_DIR}/jquery.require.stylesheet.js\
 	${SRC_DIR}/jquery.require.template.js\
+	${SRC_DIR}/jquery.require.language.js\
 	${SRC_DIR}/jquery.require.library.js
 
 
