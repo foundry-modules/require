@@ -106,25 +106,30 @@ $.require.addLoader('script', (function() {
 			// Module definition
 			if ($.isArray(name)) {
 
-				task.name = name.join('@');
+				task.name = name[0] + "@" + name[1];
 
 				task.moduleName = name[0];
 
 				// Assign path to be resolved
 				name = name[1];
 
-				// Set module flag
-				task.defineModule = true;
+				var overrideModuleUrl = name[2];
 
-				// Raise a warning if the module already exist
-				if ($.module.registry(task.moduleName)) {
-					console.warn("$.require.script: " + task.moduleName + ' exists! Using existing module instead.');
+				if (!overrideModuleUrl) {
+
+					// Set module flag
+					task.defineModule = true;
+
+					// Raise a warning if the module already exist
+					if ($.module.registry[task.moduleName]) {
+						console.warn("$.require.script: " + task.moduleName + ' exists! Using existing module instead.');
+					}
+
+					// Use XHR for module definitions
+					task.options.xhr = true;
 				}
 
 				task.module = $.module(task.moduleName);
-
-				// Use XHR for module definitions
-				task.options.xhr = true;
 			}
 
 			// Resolve name to paths
