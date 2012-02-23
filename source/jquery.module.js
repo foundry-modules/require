@@ -54,7 +54,7 @@ $.module = (function() {
 				module.status = "loading";
 
 				// Execute factory
-				factory.call(module);
+				factory.call(module, $);
 
 				return module;
 			}
