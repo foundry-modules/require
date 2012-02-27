@@ -110,9 +110,6 @@ $.require.addLoader('script', (function() {
 
 				task.moduleName = name[0];
 
-				// Assign path to be resolved
-				name = name[1];
-
 				var overrideModuleUrl = name[2];
 
 				if (!overrideModuleUrl) {
@@ -128,6 +125,9 @@ $.require.addLoader('script', (function() {
 					// Use XHR for module definitions
 					task.options.xhr = true;
 				}
+
+				// Assign path to be resolved
+				name = name[1];
 
 				task.module = $.module(task.moduleName);
 			}
@@ -199,7 +199,7 @@ $.require.addLoader('script', (function() {
 			} else {
 
 				task.script = $.script({
-					url: task.url,
+					src: task.url,
 					type: "text/cache"
 				});
 
