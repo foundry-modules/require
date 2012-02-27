@@ -199,7 +199,7 @@ $.require.addLoader('script', (function() {
 			} else {
 
 				task.script = $.script({
-					src: task.url,
+					url: task.url,
 					type: "text/cache"
 				});
 
