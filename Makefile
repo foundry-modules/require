@@ -1,5 +1,9 @@
 include ../../build/modules.mk
 
+MODULE = require
+FILENAME = ${MODULE}.js
+RAWFILE = ${DEVELOPMENT_DIR}/${MODULE}.raw.js
+
 SOURCE = ${SOURCE_DIR}/jquery.require.js\
 	${SOURCE_DIR}/jquery.require.script.js\
 	${SOURCE_DIR}/jquery.require.stylesheet.js\
@@ -7,22 +11,21 @@ SOURCE = ${SOURCE_DIR}/jquery.require.js\
 	${SOURCE_DIR}/jquery.require.language.js\
 	${SOURCE_DIR}/jquery.require.library.js
 
-BUILD_FILE = require.js
+PRODUCTION = ${PRODUCTION_DIR}/${FILENAME}
+DEVELOPMENT = ${DEVELOPMENT_DIR}/${FILENAME}
 
-PRODUCTION = ${PRODUCTION_DIR}/${BUILD_FILE}
-
-DEVELOPMENT = ${DEVELOPMENT_DIR}/${BUILD_FILE}
-
-all: module require min
+all: raw module clean
 
 module:
-	cp ${SOURCE_DIR}/jquery.module.js ${DEVELOPMENT_DIR}/module.js
+	${WRAP} ${RAWFILE} > ${DEVELOPMENT}
+	${UGLIFYJS} ${DEVELOPMENT} > ${PRODUCTION}
+	${WRAP} ${DEVELOPMENT_DIR}/module.raw.js > ${DEVELOPMENT_DIR}/module.js
 	${UGLIFYJS} ${DEVELOPMENT_DIR}/module.js > ${PRODUCTION_DIR}/module.js
 
-require:
-	@@cat ${SOURCE} > ${DEVELOPMENT}.tmp
-	${WRAP} ${DEVELOPMENT}.tmp > ${DEVELOPMENT}
-	rm -fr ${DEVELOPMENT}.tmp
+raw:
+	cat ${SOURCE} > ${RAWFILE}
+	cp ${SOURCE_DIR}/jquery.module.js ${DEVELOPMENT_DIR}/module.raw.js
 
-min:
-	${UGLIFYJS} ${DEVELOPMENT} > ${PRODUCTION}
+clean:
+	rm -fr ${RAWFILE}
+	rm -fr ${DEVELOPMENT_DIR}/module.raw.js
