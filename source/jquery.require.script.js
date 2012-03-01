@@ -106,7 +106,7 @@ $.require.addLoader('script', (function() {
 
 			task.taskBefore = taskBefore;
 
-			// Module definition
+			// Module assignment or module url override
 			if ($.isArray(name)) {
 
 				task.name = name[0] + "@" + name[1];
@@ -115,6 +115,7 @@ $.require.addLoader('script', (function() {
 
 				var overrideModuleUrl = name[2];
 
+				// Module assignment
 				if (!overrideModuleUrl) {
 
 					// Set module flag
@@ -125,8 +126,14 @@ $.require.addLoader('script', (function() {
 						console.warn("$.require.script: " + task.moduleName + ' exists! Using existing module instead.');
 					}
 
-					// Use XHR for module definitions
+					// Use XHR for module assignments
 					task.options.xhr = true;
+
+				// Module override
+				} else {
+
+					// Ask jQuery to expect this module.
+					$.expects(task.moduleName);
 				}
 
 				// Assign path to be resolved
@@ -155,6 +162,9 @@ $.require.addLoader('script', (function() {
 				task.url = $.uri(task.options.path)
 							.toPath('./' + name + '.' + task.options.extension)
 							.toString();
+
+				// Ask jQuery to expect this module.
+				$.expects(name);
 
 				task.module = $.module(name);
 			}
