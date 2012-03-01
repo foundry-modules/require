@@ -27,7 +27,7 @@ $.require.addLoader('library', function() {
 	}
 
 	$.extend(options, {
-		path: Foundry.scriptPath
+		path: $.scriptPath
 	});
 
 	return batch.script.apply(batch, [options].concat(names));
