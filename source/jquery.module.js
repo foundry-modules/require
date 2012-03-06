@@ -163,3 +163,8 @@ $.module = (function() {
 	return self;
 
 })();
+
+dispatch.recipient("$FOUNDRY_NAMESPACE Module", function(exports, manifest) {
+
+	$.module(manifest.name, exports);
+});
