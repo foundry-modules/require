@@ -128,12 +128,6 @@ $.require.addLoader('script', (function() {
 
 					// Use XHR for module assignments
 					task.options.xhr = true;
-
-				// Module override
-				} else {
-
-					// Ask jQuery to expect this module.
-					$.expects(task.moduleName);
 				}
 
 				// Assign path to be resolved
