@@ -23,8 +23,8 @@ module:
 	${UGLIFYJS} ${DEVELOPMENT_DIR}/module.js > ${PRODUCTION_DIR}/module.js
 
 raw:
-	cat ${SOURCE} > ${RAWFILE}
-	cp ${SOURCE_DIR}/jquery.module.js ${DEVELOPMENT_DIR}/module.raw.js
+	cat ${SOURCE} | ${RESOLVE_NAMESPACE} > ${RAWFILE}
+	cat ${SOURCE_DIR}/jquery.module.js | ${RESOLVE_NAMESPACE} > ${DEVELOPMENT_DIR}/module.raw.js
 
 clean:
 	rm -fr ${RAWFILE}
