@@ -164,7 +164,9 @@ $.module = (function() {
 
 })();
 
-dispatch.recipient("$FOUNDRY_NAMESPACE Module", function(exports, manifest) {
+dispatch
+	.to("$FOUNDRY_NAMESPACE Module")
+	.at(function(exports, manifest) {
 
-	$.module(manifest.name, exports);
-});
+		$.module(manifest.name, exports);
+	});
