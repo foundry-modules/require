@@ -157,9 +157,6 @@ $.require.addLoader('script', (function() {
 							.toPath('./' + name + '.' + task.options.extension)
 							.toString();
 
-				// Ask jQuery to expect this module.
-				$.expects(name);
-
 				task.module = $.module(name);
 			}
 		}

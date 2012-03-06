@@ -165,8 +165,7 @@ $.module = (function() {
 })();
 
 dispatch
-	.to("$FOUNDRY_NAMESPACE Module")
+	.to("$FOUNDRY_NAMESPACE Modules")
 	.at(function(exports, manifest) {
-
 		$.module(manifest.name, exports);
 	});
