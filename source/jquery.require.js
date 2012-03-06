@@ -43,6 +43,9 @@ $.require = (function() {
 			path: (function() {
 
 				var path =
+
+					$.scriptPath ||
+
 					// By "require_path" attribute
 					$('[require-path]').attr('require-path') ||
 
@@ -63,7 +66,7 @@ $.require = (function() {
 
 			retry: 3,
 
-			verbose: false
+			verbose: ($.environment=="development")
 		},
 
 		setup: function(options) {
