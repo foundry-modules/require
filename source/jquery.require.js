@@ -26,10 +26,6 @@ $.require = (function() {
 
 		self.batches[batch.id] = batch;
 
-		if (batch.options.verbose) {
-			console.info('$.require: Batch ' + batch.id + ' created.', batch);
-		}
-
 		return batch;
 	};
 
@@ -169,10 +165,6 @@ $.require = (function() {
 			var task = this,
 				batch = task.batch;
 
-			if (batch.options.verbose) {
-				console.info('$.require: ' + task.name + ' loaded successfully.', task);
-			};
-
 			batch.manager.notifyWith(batch, [task]);
 		},
 
@@ -226,10 +218,6 @@ $.require = (function() {
 				// Resolve batch if all tasks are done
 				.done(function(){
 
-					if (batch.options.verbose) {
-						console.info('$.require: Batch ' + batch.id + ' completed.', batch);
-					};
-
 					batch.manager.resolve();
 				})
 
@@ -237,7 +225,7 @@ $.require = (function() {
 				.fail(function(){
 
 					if (batch.options.verbose) {
-						console.info('$.require: Batch ' + batch.id + ' completed.', batch);
+						console.info('$.require: Batch ' + batch.id + ' failed.', batch);
 					};
 
 					batch.manager.reject();
