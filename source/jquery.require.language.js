@@ -48,7 +48,7 @@ $.require.addLoader('language', (function() {
 		// with other ajax loaders.
 		setTimeout(function(){
 			task.start();
-		}, 250);
+		}, 1000);
 
 	};
 
