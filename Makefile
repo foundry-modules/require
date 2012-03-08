@@ -9,7 +9,9 @@ SOURCE = ${SOURCE_DIR}/jquery.require.js\
 	${SOURCE_DIR}/jquery.require.stylesheet.js\
 	${SOURCE_DIR}/jquery.require.template.js\
 	${SOURCE_DIR}/jquery.require.language.js\
-	${SOURCE_DIR}/jquery.require.library.js
+	${SOURCE_DIR}/jquery.require.library.js\
+	${SOURCE_DIR}/jquery.require.image.js
+
 
 PRODUCTION = ${PRODUCTION_DIR}/${FILENAME}
 DEVELOPMENT = ${DEVELOPMENT_DIR}/${FILENAME}
