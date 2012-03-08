@@ -44,7 +44,11 @@ $.require.addLoader('language', (function() {
 
 		batch.addTask(task);
 
-		task.start();
+		// Prevent parallel ajax call when chained
+		// with other ajax loaders.
+		setTimeout(function(){
+			task.start();
+		}, 250);
 
 	};
 
