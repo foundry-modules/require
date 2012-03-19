@@ -244,6 +244,8 @@ $.require.addLoader('script', (function() {
 
 		reload: function() {
 
+			var task = this;
+
 			// Remove "text/cache" node.
 			task.script.remove();
 
