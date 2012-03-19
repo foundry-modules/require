@@ -222,7 +222,12 @@ $.require.addLoader('script', (function() {
 						// the previous script is injected into the head first,
 						(!taskBefore) ?
 
-						task.reload :
+						function() {
+
+							task.reload();
+						}
+
+						:
 
 						// so we will inject our script when the task
 						// only when the task before is resolved.
