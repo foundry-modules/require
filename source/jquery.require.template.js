@@ -56,7 +56,7 @@ $.require.addLoader('template', (function() {
 			// Overrides require path.
 			path: '',
 
-			extension: 'ejs'
+			extension: 'htm'
 		},
 
 		setup: function() {
