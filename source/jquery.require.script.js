@@ -16,6 +16,17 @@
 
 $.require.addLoader('script', (function() {
 
+	// IE & Opera thinks punycoded urls are cross-domain requests,
+	// and rejects the ajax request because they think they don't have
+	// the necesary transport to facilitate such requests.
+
+	var ajaxHost = $.uri($.indexUrl).host(),
+		documentHost = $.uri(document.location.href).host();
+
+	if (ajaxHost!==documentHost && ajaxHost.match("xn--")) {
+		$.support.cors = true;
+	}
+
 	var canAsync = document.createElement("script").async === true || "MozAppearance" in document.documentElement.style || window.opera;
 
 	var self = function() {
