@@ -188,6 +188,25 @@ $.require = (function() {
 			batch.manager.notifyWith(batch, [task]);
 		},
 
+		expand: function(args, opts) {
+
+			var args = $.makeArray(args),
+				options = opts || {},
+				names = [];
+
+            if ($.isPlainObject(args[0])) {
+                options = $.extend(args[0], opts);
+                names = args.slice(1);
+            } else {
+                names = args;
+            }
+
+            return {
+            	options: options,
+            	names: names
+            }
+		},
+
 		// TODO: Statistics
 		stat: function(){
 		}
