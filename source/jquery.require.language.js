@@ -90,7 +90,7 @@ $.require.addLoader('language', (function() {
 
 			task.loader = self.loaders[task.name] || (function() {
 
-				var loader = $.ajax({
+				var loader = $.Ajax({
 
 					url: task.url,
 

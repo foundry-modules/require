@@ -115,7 +115,7 @@ $.require.addLoader('template', (function() {
 
 			task.loader = self.loaders[task.url] || (function() {
 
-				var loader = $.ajax({
+				var loader = $.Ajax({
 
 					url: task.url,
 
