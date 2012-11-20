@@ -97,7 +97,7 @@ $.require.addLoader('script', (function() {
 			xhr: false,
 
 			// Used in IE to prefetch scripts.
-			prefetch: true
+			prefetch: false
 		},
 
 		setup: function() {
