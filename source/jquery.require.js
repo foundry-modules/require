@@ -88,13 +88,45 @@ $.require = (function() {
 			batch.options = $.extend({}, self.defaultOptions, options);
 		},
 
-		status: function() {
+		status: function(filter) {
+
 			$.each(self.batches, function(i, batch){
-				console.info(batch.id, batch.state(), batch);
+
+				var count = {pending: 0, resolved: 0, rejected: 0, total: 0};
+
+				// Convert into real deferred object for require batch
+				// that was called without done().
+				if (batch.state===undefined) { batch.done(); }
+
+
+				// Calculate statistics
+				$.each(batch.taskList, function(i, task){
+					count[task.state()]++;
+					count.total++;
+				});
+
+				var stat =
+				 "d:" + count.resolved +
+				" f:" + count.rejected +
+				" p:" + count.pending  +
+				" (" + count.total + ")";
+
+				var batchName = stat + " [" + batch.state() + "] " + batch.id;
+
+				// Create log group
+				console.groupCollapsed(batchName);
+
+				// Generate list
+				console.info("$.require.batches[\"" + batch.id + "\"]", batch);
 
 				$.each(batch.taskList, function(i, task){
-					console.log('\t [' + task.name + ']', task.state());
+
+					if (!filter || task.state()==filter) {
+						console.log('[' + task.name + ']', task.state());
+					}
 				});
+
+				console.groupEnd(batchName);
 			});
 		},
 
