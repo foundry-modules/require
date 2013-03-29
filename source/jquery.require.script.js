@@ -201,6 +201,18 @@ $.require.addLoader('script', (function() {
 					task.rejected();
 					return;
 				}
+
+				// and the module is loading
+				if (moduleState=="loading") {
+
+					// then resolve task when the module is resolved.
+					task.module
+						.then(
+							task.resolve,
+							task.reject,
+							task.notify
+						);
+				}
 			}
 
 			// Load script
