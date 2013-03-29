@@ -64,9 +64,22 @@ $.module = (function() {
 		 *	This is used by $.require builder when combining multiple script files into one.
          *
 		 *  $.module([
+		 *
+		 *      // Codes that needs to be executed before the
+		 *      // next module factory gets executed.
 		 *		function(){},
-		 *		['foobar', function(){}]
+	     *
+	     *      // Module task object
+	     *      {
+	     *			name: "module.name"
+	     *			factory: function(){}
+	     *      }
+	     *
+	     *      // Module which is loading
+	     *      // but factory assignment kicks in later
+	     *      "module.name"
 		 *	]);
+		 *
 		 */
 
 		var _this = this;
@@ -106,6 +119,24 @@ $.module = (function() {
 
 					return task;
 				}
+
+				if ($.isString(task)) {
+
+					var module = self.get(task);
+
+					if (module===undefined) {
+
+						return null;
+					}
+
+					if (module.status === "pending") {
+
+						module.status = "loading";
+					}
+
+					return null;
+				};
+
 			});
 
 			// Run through the list of tasks and assign its factory to the module.
