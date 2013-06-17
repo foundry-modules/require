@@ -1,21 +1,20 @@
-all: join resolve-namespace wrap-core minify make-module
+all: join-script-files resolve-namespace wrap-script minify-script make-module
 
 include ../../build/modules.mk
 
 MODULE = require
-SOURCE_FILES = ${SOURCE_DIR}/jquery.require.js\
-	${SOURCE_DIR}/jquery.require.script.js\
-	${SOURCE_DIR}/jquery.require.stylesheet.js\
-	${SOURCE_DIR}/jquery.require.template.js\
-	${SOURCE_DIR}/jquery.require.language.js\
-	${SOURCE_DIR}/jquery.require.library.js\
-	${SOURCE_DIR}/jquery.require.image.js
+SOURCE_SCRIPT_FILES = ${SOURCE_SCRIPT_FOLDER}/jquery.require.js\
+	${SOURCE_SCRIPT_FOLDER}/jquery.require.script.js\
+	${SOURCE_SCRIPT_FOLDER}/jquery.require.stylesheet.js\
+	${SOURCE_SCRIPT_FOLDER}/jquery.require.template.js\
+	${SOURCE_SCRIPT_FOLDER}/jquery.require.language.js\
+	${SOURCE_SCRIPT_FOLDER}/jquery.require.library.js\
+	${SOURCE_SCRIPT_FOLDER}/jquery.require.image.js
 
-module: module_ resolve-namespace wrap-core minify
+module: module_ resolve-namespace wrap-script minify-script
 
 module_:
 	$(eval MODULE = module)
-	$(eval SOURCE_FILE = ${SOURCE_DIR}/${FILENAME})
 
 make-module:
 	make module
