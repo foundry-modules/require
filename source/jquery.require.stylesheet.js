@@ -61,7 +61,7 @@ $.require.addLoader('stylesheet', (function() {
 			// Overrides require path.
 			path: '',
 
-			extension: 'css',
+			extension: (($.mode=='compressed') ? 'min.css' : 'css'),
 
 			// @TODO: XHR loading.
 			// Use XHR to load stylesheet. Default: Link injection. @import() for IE.

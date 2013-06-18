@@ -85,7 +85,7 @@ $.require.addLoader('script', (function() {
 			// Overrides require path.
 			path: '',
 
-			extension: 'js',
+			extension: (($.mode=='compressed') ? 'min.js' : 'js'),
 
 			// Serial script loading. Default: Parallel script loading.
 			serial: false,
