@@ -40,7 +40,7 @@ $.require = (function() {
 
 				var path =
 
-					$.scriptPath ||
+					$.path + "scripts/" ||
 
 					// By "require_path" attribute
 					$('[require-path]').attr('require-path') ||
