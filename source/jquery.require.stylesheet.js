@@ -108,8 +108,35 @@ $.require.addLoader('stylesheet', (function() {
 
 			// Remap task.url to task.options.url
 			task.options.url = task.url;
-		}
+		},
 
+		loaders: {},
+
+		loader: function(name) {
+
+			// Pre-define loaders
+			if ($.isArray(name)) {
+				return $.map(name, function(name){
+					return self.loader(name);
+				});
+			}
+
+			// Resolve loaders
+			if ($.isPlainObject) {
+				return $.map(name, function(name, options){
+					return self.loader(name).resolve(options);
+				});
+			}
+
+			// Get loader or create loaders
+			return self.loaders[name] ||
+				   self.loaders[name] = 
+				       $.Deferred();
+					       	.done(function(options){
+					       		if ($.isPlainObject(options)) return;
+					       		$.stylesheet(options);
+					       	});
+		}		
 	});
 
 	$.extend(self.task.prototype, {
@@ -118,14 +145,23 @@ $.require.addLoader('stylesheet', (function() {
 
 			var task = this;
 
-			if ($.stylesheet(task.options)) {
+			var loader = self.loaders[task.name];
 
-				task.resolve();
+			// If this stylesheet hasn't been requested yet
+			if (!loader) {
 
-			} else {
+				// Create a stylesheet loader
+				loader = self.loader(task.name);
 
-				task.reject();
+				// Insert the stylesheet
+				if ($.stylesheet(task.options)) {
+					loader.resolve();
+				} else {
+					loader.reject();
+				}
 			}
+
+			loader.then(task.resolve, task.reject);
 		}
 
 	});
