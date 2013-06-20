@@ -71,18 +71,7 @@ $.require.addLoader('language', (function() {
 
 			task.url = options.path;
 
-			// Filter out language keys that has been loaded
-			task.names = $.map(names, function(name){
-				return (self.loaders[name]) ? null : name;
-			});
-
-			// When unable to load language strings,
-			// also reject language loaders.
-			task.fail(function(){
-				$.each(task.names, function(i, name){
-					self.loader(name).reject();
-				});
-			});
+			task.names = names;
 		},
 
 		loaders: {},
@@ -119,28 +108,58 @@ $.require.addLoader('language', (function() {
 
 			var task = this;
 
-			// Resolve task straightaway if there are
-			// no language strings to load.
-			if (task.names.length < 1) return task.resolve();
+			var loaders = [];
 
-			// Predefine loaders so subsequent require calls
-			// requesting the same language keys won't be loaded again.
-			self.loader(task.names);
+			var names = 
+				$.map(task.names, function(name){
+
+					// Get existing loader or predefine loaders
+					// so that subsequent require calls requesting
+					// the same language keys won't be loaded again.
+					var loader = self.loader(name);
+
+					// Keep it to our array of loaders
+					loader.push(loader);
+
+					// If the language has resolved or rejected
+					// remove it from list of language keys to load
+					if (/resolved|rejected/.test(loader.state()) return null;
+
+					return name;
+				});
+
+			// When unable to load language strings,
+			// reject language loaders.
+			task.fail(function(){
+				$.each(names, function(i, name){
+					self.loader(name).reject();
+				});
+			});
+
+			// When all language strings has been loaded,
+			// then we can resolve this task.
+			$.when.apply(null, loaders)
+				.then(task.resolve, task.reject);
+
+			// If there are no language strings to load,
+			// then wait for existing loaders to resolve or reject itself.
+			if (names.length < 1) return task;
 
 			task.xhr = 
 				$.Ajax({
 					url: task.url,
 					type: "POST",
 					data: {
-						languages: task.languages
+						keys: names
 					}
 				})
 				.done(function(strings){
 
 					// If returned data is a language key-pair object, resolve task.
 					if ($.isPlainObject(strings)) {
+
 						self.loader(strings);
-						task.resolve();
+						// We don't need to resolve as the $.when above will resolve for us.
 					} else {
 						task.reject();
 					}
@@ -148,6 +167,8 @@ $.require.addLoader('language', (function() {
 				.fail(function(){
 					task.reject();
 				});
+
+			return task;
 		}
 	});
 
