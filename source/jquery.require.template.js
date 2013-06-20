@@ -148,8 +148,8 @@ $.require.addLoader('template', (function() {
 							url: task.url,
 							dataType: "text"
 						})
-						.done(loader.resolve)
-						.fail(loader.reject);
+						.then(loader.resolve, loader.reject)
+						.then(task.resolve, task.reject);
 			}
 
 			// Keep a reference to the loader in the task
