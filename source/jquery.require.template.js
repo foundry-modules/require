@@ -64,9 +64,7 @@ $.require.addLoader('template', (function() {
 			$.extend(self.defaultOptions, options);
 		},
 
-		loaders: {},
-
-		task: function(name, options, taskBefore) {
+		task: function(name, options) {
 
 			var task = $.extend(this, $.Deferred());
 
@@ -102,42 +100,62 @@ $.require.addLoader('template', (function() {
 							.toPath('./' + name + '.' + task.options.extension)
 							.toString();
 			}
-		}
+		},
 
+		loaders: {},
+
+		loader: function(name) {
+
+			// Pre-define loaders
+			if ($.isArray(name)) {
+				return $.map(name, function(name){
+					return self.loader(name);
+				});
+			}
+
+			// Resolve loaders
+			if ($.isPlainObject) {
+				return $.map(name, function(name, content){
+					return self.loader(name).resolve(content);
+				});
+			}
+
+			// Get loader or create loaders
+			return self.loaders[name] ||
+				   self.loaders[name] = 
+				       $.Deferred()
+					       	.done(function(content){
+					       		$.template(name, content);
+					       	});
+		}
 	});
 
 	$.extend(self.task.prototype, {
 
 		start: function() {
 
-			var task = this,
-				taskBefore = task.taskBefore;
+			var task = this;
 
-			task.loader = self.loaders[task.url] || (function() {
+			// See if there is an existing loader
+			var loader = self.loaders[task.name];
 
-				var loader = $.Ajax({
+			if (!loader) {
 
-					url: task.url,
+				loader = self.loader(task.name);
 
-					dataType: "text"
-				});
+				loader.xhr = 
+					$.Ajax({
+							url: task.url,
+							dataType: "text"
+						})
+						.done(loader.resolve)
+						.fail(loader.reject);
+			}
 
-				return self.loaders[task.url] = loader;
+			// Keep a reference to the loader in the task
+			task.loader = loader;
 
-			})();
-
-			task.loader
-				.done(function(content) {
-
-					$.template(task.name, content);
-
-					task.resolve();
-				})
-				.fail(function() {
-
-					task.reject();
-
-				});
+			return task;
 		}
 	});
 
