@@ -131,7 +131,7 @@ $.require.addLoader('stylesheet', (function() {
 			// Get loader or create loaders
 			return self.loaders[name] ||
 				   self.loaders[name] = 
-				       $.Deferred();
+				       $.Deferred()
 					       	.done(function(options){
 					       		if ($.isPlainObject(options)) return;
 					       		$.stylesheet(options);

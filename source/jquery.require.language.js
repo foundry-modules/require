@@ -123,7 +123,7 @@ $.require.addLoader('language', (function() {
 
 					// If the language has resolved or rejected
 					// remove it from list of language keys to load
-					if (/resolved|rejected/.test(loader.state()) return null;
+					if (/resolved|rejected/.test(loader.state())) return null;
 
 					return name;
 				});
