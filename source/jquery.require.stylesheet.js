@@ -122,20 +122,25 @@ $.require.addLoader('stylesheet', (function() {
 			}
 
 			// Resolve loaders
-			if ($.isPlainObject) {
+			if ($.isPlainObject(name)) {
 				return $.map(name, function(name, options){
 					return self.loader(name).resolve(options);
 				});
 			}
 
 			// Get loader or create loaders
-			return self.loaders[name] ||
-				   self.loaders[name] = 
-				       $.Deferred()
-					       	.done(function(options){
-					       		if ($.isPlainObject(options)) return;
-					       		$.stylesheet(options);
-					       	});
+			var loader = self.loaders[name];
+
+			if (!loader) {
+				loader = self.loaders[name] = 
+					$.Deferred()
+						.done(function(options){
+							if ($.isPlainObject(options)) return;
+							$.stylesheet(options);
+						});
+			}
+
+			return loader;
 		}		
 	});
 

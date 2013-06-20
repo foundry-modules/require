@@ -114,19 +114,24 @@ $.require.addLoader('template', (function() {
 			}
 
 			// Resolve loaders
-			if ($.isPlainObject) {
+			if ($.isPlainObject(name)) {
 				return $.map(name, function(name, content){
 					return self.loader(name).resolve(content);
 				});
 			}
 
 			// Get loader or create loaders
-			return self.loaders[name] ||
-				   self.loaders[name] = 
-				       $.Deferred()
-					       	.done(function(content){
-					       		$.template(name, content);
-					       	});
+			var loader = self.loaders[name];
+
+			if (!loader) {
+				loader = self.loaders[name] = 
+					$.Deferred()
+						.done(function(content){
+							$.template(name, content);
+						});
+			}
+
+			return loader;
 		}
 	});
 

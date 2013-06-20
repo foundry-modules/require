@@ -86,19 +86,24 @@ $.require.addLoader('language', (function() {
 			}
 
 			// Resolve loaders
-			if ($.isPlainObject) {
+			if ($.isPlainObject(name)) {
 				return $.map(name, function(name, content){
 					return self.loader(name).resolve(content);
 				});
 			}
 
 			// Get loader or create loaders
-			return self.loaders[name] ||
-				   self.loaders[name] = 
-				       $.Deferred()
-					       	.done(function(string){
-					       		$.language.add(name, string);
-					       	});
+			var loader = self.loaders[name];
+
+			if (!loader) {
+				loader = self.loaders[name] = 
+					$.Deferred()
+						.done(function(string){
+							$.language.add(name, string);
+						});
+			}
+
+			return loader;
 		}
 	});
 
