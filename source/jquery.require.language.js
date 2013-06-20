@@ -44,12 +44,7 @@ $.require.addLoader('language', (function() {
 
 		batch.addTask(task);
 
-		// Prevent parallel ajax call when chained
-		// with other ajax loaders.
-		setTimeout(function(){
-			task.start();
-		}, 1000);
-
+		task.start();
 	};
 
 	$.extend(self, {
@@ -71,51 +66,87 @@ $.require.addLoader('language', (function() {
 			var task = $.extend(this, $.Deferred());
 
 			task.name = names.join(',');
-
+			
 			task.options = options;
 
 			task.url = options.path;
 
-			task.languages = names;
-		}
+			// Filter out language keys that has been loaded
+			task.names = $.map(names, function(name){
+				return (self.loaders[name]) ? null : name;
+			});
 
+			// When unable to load language strings,
+			// also reject language loaders.
+			task.fail(function(){
+				$.each(task.names, function(i, name){
+					self.loader(name).reject();
+				});
+			});
+		},
+
+		loaders: {},
+
+		loader: function(name) {
+
+			// Pre-define loaders
+			if ($.isArray(name)) {
+				return $.map(name, function(name){
+					return self.loader(name);
+				});
+			}
+
+			// Resolve loaders
+			if ($.isPlainObject) {
+				return $.map(name, function(name, content){
+					return self.loader(name).resolve(content);
+				});
+			}
+
+			// Get loader or create loaders
+			return self.loaders[name] ||
+				   self.loaders[name] = 
+				       $.Deferred()
+					       	.done(function(string){
+					       		$.language.add(name, string);
+					       	});
+		}
 	});
 
 	$.extend(self.task.prototype, {
 
 		start: function() {
 
-			var task = this,
-				taskBefore = task.taskBefore;
+			var task = this;
 
-			task.loader = self.loaders[task.name] || (function() {
+			// Resolve task straightaway if there are
+			// no language strings to load.
+			if (task.names.length < 1) return task.resolve();
 
-				var loader = $.Ajax({
+			// Predefine loaders so subsequent require calls
+			// requesting the same language keys won't be loaded again.
+			self.loader(task.names);
 
+			task.xhr = 
+				$.Ajax({
 					url: task.url,
-
 					type: "POST",
-
 					data: {
 						languages: task.languages
 					}
-				});
-
-				return self.loaders[task.name] = loader;
-
-			})();
-
-			task.loader
-				.done(function(languages) {
-
-					$.language.add(languages);
-
-					task.resolve();
 				})
-				.fail(function() {
+				.done(function(strings){
 
+					// If returned data is a language key-pair object, resolve task.
+					if ($.isPlainObject(strings)) {
+						self.loader(strings);
+						task.resolve();
+					} else {
+						task.reject();
+					}
+				})
+				.fail(function(){
 					task.reject();
-
 				});
 		}
 	});
