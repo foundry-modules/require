@@ -115,7 +115,7 @@ $.require.addLoader('template', (function() {
 
 			// Resolve loaders
 			if ($.isPlainObject(name)) {
-				return $.map(name, function(name, content){
+				return $.map(name, function(content, name){
 					return self.loader(name).resolve(content);
 				});
 			}
