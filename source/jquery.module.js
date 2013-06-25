@@ -178,10 +178,14 @@ $.module = (function() {
 				status: "pending"
 			});
 
-			module.done(function() {
-				module.exports = this;
-				module.status = "ready";
-			});
+			module
+				.done(function() {
+					module.exports = this;
+					module.status = "resolved";
+				})
+				.fail(function(){
+					module.status = "rejected";
+				});
 
 			return self.registry[name] = module;
 		},

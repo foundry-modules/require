@@ -184,7 +184,7 @@ $.require.addLoader('script', (function() {
 			// If we're loading a module,
 			if (task.module) {
 
-				var moduleState = task.module.state();
+				var moduleState = task.module.status;
 
 				// and the module has been resolved,
 				if (moduleState=="resolved") {
@@ -212,6 +212,8 @@ $.require.addLoader('script', (function() {
 							task.reject,
 							task.notify
 						);
+
+					return;
 				}
 			}
 
