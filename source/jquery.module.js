@@ -49,6 +49,9 @@ $.module = (function() {
 
 			if ($.isFunction(factory)) {
 
+				// If module is resolved, don't let new factory overwrite it.
+				if (module.status=="resolved") return module;
+
 				module.factory = factory;
 
 				module.status = "loading";
