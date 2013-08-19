@@ -202,7 +202,7 @@ $.module = (function() {
 
 })();
 
-dispatch
+Dispatch
 	.to("$FOUNDRY_NAMESPACE Modules")
 	.at(function(exports, manifest) {
 		$.module(manifest.name, exports);
