@@ -169,6 +169,11 @@ $.module = (function() {
 
 		get: function(name) {
 			if (name===undefined) return;
+
+			if ($.isModule(name)) {
+				name = name.replace("module://", "");
+			}
+
 			return self.registry[name] || self.create(name);
 		},
 
@@ -190,6 +195,8 @@ $.module = (function() {
 					module.status = "rejected";
 				});
 
+			module._module = true;
+
 			return self.registry[name] = module;
 		},
 
@@ -201,6 +208,15 @@ $.module = (function() {
 	return self;
 
 })();
+
+$.isModule = function(module) {
+
+	if ($.isString(module)) {
+		return module.test("module://");
+	}
+
+	return module && module._module;
+}
 
 Dispatch
 	.to("$FOUNDRY_NAMESPACE Modules")
