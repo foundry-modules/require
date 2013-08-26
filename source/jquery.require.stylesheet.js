@@ -36,7 +36,7 @@ $.require.addLoader('stylesheet', (function() {
 			self.defaultOptions,
 			batch.options,
 			{
-				path: $.path + 'styles/'
+				path: $.path + '/styles/'
 			},
 			options,
 			{batch: batch}
