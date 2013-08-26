@@ -212,7 +212,7 @@ $.module = (function() {
 $.isModule = function(module) {
 
 	if ($.isString(module)) {
-		return module.test("module://");
+		return !!module.match("module://");
 	}
 
 	return module && module._module;
