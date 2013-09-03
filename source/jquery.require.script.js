@@ -94,10 +94,7 @@ $.require.addLoader('script', (function() {
 			async: false,
 
 			// Use XHR to load script. Default: Script injection.
-			xhr: false,
-
-			// Used in IE to prefetch scripts.
-			prefetch: false
+			xhr: false
 		},
 
 		setup: function() {
@@ -217,65 +214,7 @@ $.require.addLoader('script', (function() {
 				}
 			}
 
-			// Load script
-			// canAsync flag is used to determine whether or not we are on IE.
-			if (canAsync || task.options.xhr) {
-
-				task.load();
-
-			// For IE, we will have to prefetch the script using text/cache hack,
-			// then reload the script again using text/javascript.
-			} else {
-
-				// Load script straightaway if prefetch option is disabled.
-				if (!task.options.prefetch) {
-					task.load();
-					return;
-				}
-
-				// Create a text/cache script instance.
-				task.script = $.script({
-					url: task.url,
-					type: "text/cache"
-				});
-
-				// When script is prefetched,
-				task.script
-					.done(
-
-						// IE may still execute script out of sync even though
-						// the previous script is injected into the head first,
-						(!taskBefore) ?
-
-						function() {
-
-							task.reload();
-						}
-
-						:
-
-						// so we will inject our script when the task
-						// only when the task before is resolved.
-						function() {
-
-							taskBefore.done(function(){
-
-								task.reload();
-							});
-						}
-					);
-			}
-		},
-
-		reload: function() {
-
-			var task = this;
-
-			// Remove "text/cache" node.
-			task.script.remove();
-
-			// Reinsert with "text/javascript" node.
-			task.load();
+			task.load();				
 		},
 
 		load: function() {
