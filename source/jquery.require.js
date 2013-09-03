@@ -22,7 +22,7 @@ $.require = (function() {
 
 	var self = function(options) {
 
-		var batch = new self.batch(options);
+		var batch = new Batch(options);
 
 		self.batches[batch.id] = batch;
 
@@ -71,22 +71,6 @@ $.require = (function() {
 		},
 
 		batches: {},
-
-		batch: function(options) {
-
-			var batch = this;
-
-			batch.id = $.uid();
-
-			// Batch manager tracks the state of tasks in batch.taskList and batch.tasks.
-			batch.manager = $.Deferred();
-
-			batch.taskList = [];
-
-			batch.tasksFinalized = false;
-
-			batch.options = $.extend({}, self.defaultOptions, options);
-		},
 
 		status: function(filter) {
 
@@ -140,153 +124,23 @@ $.require = (function() {
 
 			// Create proxy functions to require loaders,
 			// assigning current batch to factory's "this".
-			self.batch.prototype[name] = function() {
+			Batch.prototype[name] = function() {
 
-				var batch = this;
-
-				factory.apply(batch, arguments);
+				// this == batch
+				factory.apply(this, arguments);
 
 				// Ensure require calls are chainable
-				return batch;
+				return this;
 			};
 
 			self.loaders[name] = self[name] = factory;
 		},
 
 		removeLoader: function(name) {
-			delete self.batch.prototype[name];
+			delete Batch.prototype[name];
 			delete self[name];
 		}
 
-	});
-
-	// Batch class
-
-	$.extend(self.batch.prototype, {
-
-		addTask: function(task) {
-
-			var batch = this;
-
-			if (!$.isDeferred(task)) {
-				return;
-			};
-
-			if (batch.taskFinalized) {
-
-				if (batch.options.verbose) {
-					console.warn('$.require: ' + task.name + ' ignored because tasks of this batch are finalized.', task);
-				};
-
-				return;
-			};
-
-			task.batch = batch;
-
-			task.then(
-				$.proxy(batch.taskDone, task),
-				$.proxy(batch.taskFail, task),
-				$.proxy(batch.taskProgress, task)
-			);
-
-			batch.taskList.push(task);
-		},
-
-		taskDone: function() {
-
-			var task = this,
-				batch = task.batch;
-
-			batch.manager.notifyWith(batch, [task]);
-		},
-
-		taskFail: function() {
-
-			var task = this,
-				batch = task.batch;
-
-			if (batch.options.verbose) {
-				console.error('$.require: ' + task.name + ' failed to load.', task);
-			};
-
-			batch.manager.notifyWith(batch, [task]);
-		},
-
-		taskProgress: function() {
-
-			var task = this,
-				batch = task.batch;
-
-			batch.manager.notifyWith(batch, [task]);
-		},
-
-		expand: function(args, opts) {
-
-			var args = $.makeArray(args),
-				options = opts || {},
-				names = [];
-
-            if ($.isPlainObject(args[0])) {
-                options = $.extend(args[0], opts);
-                names = args.slice(1);
-            } else {
-                names = args;
-            }
-
-            return {
-            	options: options,
-            	names: names
-            }
-		},
-
-		// TODO: Statistics
-		stat: function(){
-		}
-	});
-
-	// Masquerade newly created batch instances as a pseudo-promise object
-	// until one of those promise's method is called. This is to ensure that
-	// no callbacks are fired too early until all loading tasks are finalized.
-
-	$.each(['then','done','fail','always','pipe','progress'], function(i, func) {
-
-		self.batch.prototype[func] = function() {
-
-			var batch = this;
-
-			// Finalize all tasks so no further tasks
-			// can be added to the batch job.
-			batch.taskFinalized = true;
-
-			// Extend batch with batch manager's promise methods,
-			// overriding original pseudo-promise methods.
-			$.extend(batch, batch.manager.promise());
-
-			// Create a master deferred object for all tasks
-			batch.tasks = $.when.apply(null, batch.taskList);
-
-			batch.tasks
-				// Resolve batch if all tasks are done
-				.done(function(){
-
-					batch.manager.resolve();
-				})
-
-				// Reject batch if one of the task failed
-				.fail(function(){
-
-					if (batch.options.verbose) {
-						console.info('$.require: Batch ' + batch.id + ' failed.', batch);
-					};
-
-					batch.manager.reject();
-				});
-
-			// Execute method that was originally called
-			batch[func].apply(batch, arguments);
-
-			return batch;
-		}
 	});
 
 	return self;
