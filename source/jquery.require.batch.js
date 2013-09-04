@@ -7,7 +7,7 @@ var id = 0;
 // returning an new instance of this class.
 var Batch = function(options) {
 
-	var required = $.Callbacks("once");
+	var required = $.Callbacks("once memory");
 
 	// We are extending the batch instance
 	// with the following properties.
@@ -21,6 +21,11 @@ var Batch = function(options) {
 
 		// Stores options like load path, timeout and retry count. 
 		options: $.extend({}, self.defaultOptions, options),
+
+		// Require chain automatically finalizes itself after
+		// 300ms if no promise methods were called in the require chain.
+		// Set false to disable.
+		autoFinalize: 300,
 
 		// When batch is finalized, further loader calls will be ignored.
 		finalized: false,
@@ -59,6 +64,24 @@ $.extend(Batch.prototype, {
 
 		// Decorate task with a reference to the current batch
 		task.batch = batch;
+	},
+
+	autoFinalize: function() {
+
+		var batch = this,
+			duration = batch.options.autoFinalize;
+
+		// If autoFinalize is disabled, stop.
+		if (duration===false) return;
+
+		// Clear previous timer
+		clearTimeout(batch.autoFinalizeTimer);
+
+		// Start a new timer
+		batch.autoFinalizeTimer = 
+			setTimeout(function(){
+				batch.finalize();
+			}, duration);
 	},
 
 	finalize: function() {
@@ -167,7 +190,7 @@ $.extend(Batch.prototype, {
 // no callbacks are fired too early until all require tasks are finalized.
 $.each(["done","fail","progress","always","then"], function(i, method) {
 
-	self.batch.prototype[method] = function() {
+	Batch.prototype[method] = function() {
 
 		var batch = this;
 

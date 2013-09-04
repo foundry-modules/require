@@ -126,11 +126,16 @@ $.require = (function() {
 			// assigning current batch to factory's "this".
 			Batch.prototype[name] = function() {
 
+				var batch = this;
+
+				// Reset auto-finalize timer
+				batch.autoFinalize();
+
 				// this == batch
-				factory.apply(this, arguments);
+				factory.apply(batch, arguments);
 
 				// Ensure require calls are chainable
-				return this;
+				return batch;
 			};
 
 			self.loaders[name] = self[name] = factory;
