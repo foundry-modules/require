@@ -62,10 +62,14 @@ var Module = function(name) {
 		// execute the module factory.
 		module.required = true;
 
+
 		// Execute the module factory
-		// if this module has received it.
+		// if this module has received it
+		// and it hasn't been executed yet.
 		var factory = module.factory;
-		factory && factory.call(module, $);	
+		if (factory && module.status==="loading") {
+			factory.call(module, $);
+		}
 
 		// Replace this first-time done method
 		// with the original done method.
@@ -124,6 +128,8 @@ $.module = (function() {
 				// If the module is required,
 				// execute the module factory.
 				if (module.required) {
+
+					module.status = "executing";
 
 					// Execute factory
 					factory.call(module, $);
