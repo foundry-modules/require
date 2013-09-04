@@ -15,6 +15,67 @@
  *
  */
 
+var Module = function(name) {
+
+	var module = this,
+		ready = $.Callbacks("once memory");
+
+	$.extend(this, $.Deferred(), {
+
+		// Name of the module
+		name: name,
+
+		// Module status
+		// pending, loading, resolved, rejected
+		status: "pending",
+
+		// When a module factory is received,
+		// this event is fired.
+		ready: function(fn) {
+			if (fn===true) ready.fire.call(module, $);
+			if ($.isFunction(fn)) ready.add(fn);
+		}
+	});
+
+	// Listen to the events of the module
+	// and update the module status as necessary.
+	module.then(
+		function() {
+			module.exports = this;
+			module.status  = "resolved";
+		},
+		function() {
+			module.status  = "rejected";
+		}
+	);
+
+	// Keep a copy of the original done method.
+	// This is so that we can track when this done
+	// method is being called for the first time,
+	// and perform the necessary actions below.
+	var done = module.done;
+
+	module.done = function() {
+
+		// Flag this module as required
+		// This indicates that we should
+		// execute the module factory.
+		module.required = true;
+
+		// Execute the module factory
+		// if this module has received it.
+		var factory = module.factory;
+		factory && factory.call(module, $);	
+
+		// Replace this first-time done method
+		// with the original done method.
+		module.done = done;
+
+		// Execute the original done method.
+		module.done.apply(this, arguments);
+	}
+}
+
 $.module = (function() {
 
 	var self = function(name, factory) {
@@ -56,21 +117,26 @@ $.module = (function() {
 
 				module.status = "loading";
 
-				// Execute factory
-				factory.call(module, $);
+				// Indicates that the module factory
+				// for this module has been received.
+				module.ready("true");
+
+				// If the module is required,
+				// execute the module factory.
+				if (module.required) {
+
+					// Execute factory
+					factory.call(module, $);
+				}
 
 				return module;
 			}
 		}
 
-		/** Facade #3. Multiple factory assignments.
-		 *	This is used by $.require builder when combining multiple script files into one.
+		/** Facade #3. Multiple factory assignments / Predefine modules.
+		 *	This is used by Foundry compiler when combining multiple script files into one.
          *
 		 *  $.module([
-		 *
-		 *      // Codes that needs to be executed before the
-		 *      // next module factory gets executed.
-		 *		function(){},
 	     *
 	     *      // Module task object
 	     *      {
@@ -85,79 +151,31 @@ $.module = (function() {
 		 *
 		 */
 
-		var _this = this;
+		// Predefine modules
 		if ($.isArray(name)) {
-
-			// Build a list of defined-but-unresolved modules,
-			// if the module hasn't been created yet.
-			//
-			// Defined-but-unresolved modules will trick $.require calls made within the
-			// module factory into thinking that the script file of the required module
-			// has already been loaded.
-			//
-			// This prevents $.require from making additional http request to fetch the
-			// module from the server.
 
 			var tasks = $.map(name, function(task) {
 
-				if ($.isFunction(task)) {
-					return task;
+				var module = self.get($.isString(task) ? task : task.name);
+
+				if (!module) return;
+
+				// If module is pending, set it to loading.
+				// This trick require calls into thinking that
+				// the script file of this module has been loaded,
+				// so it won't go and load the script file again.
+				if (module.status === "pending") {
+					module.status = "loading";
 				}
 
-				if ($.isPlainObject(task)) {
-
-					var module = self.get(task.name);
-
-					if (module===undefined) {
-
-						return null;
-					}
-
-					if (module.status === "pending") {
-
-						module.status = "loading";
-					}
-
-					task.module = module;
-
-					return task;
-				}
-
-				if ($.isString(task)) {
-
-					var module = self.get(task);
-
-					if (module===undefined) {
-
-						return null;
-					}
-
-					if (module.status === "pending") {
-
-						module.status = "loading";
-					}
-
-					return null;
-				};
-
+				if ($.isPlainObject(task)) return task;
 			});
 
 			// Run through the list of tasks and assign its factory to the module.
 			$.each(tasks, function(i, task) {
 
-				// If factory is function, treat it as codes that needs to be executed
-				// before the execution of the module factory.
-				if ($.isFunction(task)) {
-
-					task(); return;
-				}
-
 				// Assign factory to module
-				if ($.isPlainObject(task)) {
-
-					self.apply(_this, [task.name, task.factory]);
-				}
-
+				self(task.name, task.factory);
 			});
 		}
 	}
@@ -168,7 +186,7 @@ $.module = (function() {
 		registry: {},
 
 		get: function(name) {
-			if (name===undefined) return;
+			if (!name) return;
 
 			if ($.isModule(name)) {
 				name = name.replace("module://", "");
@@ -178,26 +196,7 @@ $.module = (function() {
 		},
 
 		create: function(name) {
-			var module = $.Deferred();
-
-			$.extend(module, {
-				name: name,
-				type: "module",
-				status: "pending"
-			});
-
-			module
-				.done(function() {
-					module.exports = this;
-					module.status = "resolved";
-				})
-				.fail(function(){
-					module.status = "rejected";
-				});
-
-			module._module = true;
-
-			return self.registry[name] = module;
+			return self.registry[name] = new Module(name);
 		},
 
 		remove: function(name) {
@@ -215,7 +214,7 @@ $.isModule = function(module) {
 		return !!module.match("module://");
 	}
 
-	return module && module._module;
+	return module && module instanceof Module;
 }
 
 Dispatch
