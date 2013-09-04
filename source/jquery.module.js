@@ -26,7 +26,7 @@ var Module = function(name) {
 		name: name,
 
 		// Module status
-		// pending, loading, resolved, rejected
+		// pending, ready, executing, resolved, rejected
 		status: "pending",
 
 		// When a module factory is received,
@@ -62,12 +62,11 @@ var Module = function(name) {
 		// execute the module factory.
 		module.required = true;
 
-
 		// Execute the module factory
 		// if this module has received it
 		// and it hasn't been executed yet.
 		var factory = module.factory;
-		if (factory && module.status==="loading") {
+		if (factory && module.status==="ready") {
 			factory.call(module, $);
 		}
 
@@ -76,7 +75,7 @@ var Module = function(name) {
 		module.done = done;
 
 		// Execute the original done method.
-		module.done.apply(this, arguments);
+		return module.done.apply(this, arguments);
 	}
 }
 
@@ -119,7 +118,7 @@ $.module = (function() {
 
 				module.factory = factory;
 
-				module.status = "loading";
+				module.status = "ready";
 
 				// Indicates that the module factory
 				// for this module has been received.
@@ -166,12 +165,12 @@ $.module = (function() {
 
 				if (!module) return;
 
-				// If module is pending, set it to loading.
+				// If module is pending, set it to ready.
 				// This trick require calls into thinking that
 				// the script file of this module has been loaded,
 				// so it won't go and load the script file again.
 				if (module.status === "pending") {
-					module.status = "loading";
+					module.status = "ready";
 				}
 
 				if ($.isPlainObject(task)) return task;

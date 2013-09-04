@@ -204,7 +204,7 @@ $.require.addLoader('script', (function() {
 
 			// When there is demand for this module,
 			// we will call the module's done method.
-			task.batch.whenRequired(function(){
+			task.batch.required(function(){
 
 				// This will execute the module factory
 				// in case it wasn't executed before.
