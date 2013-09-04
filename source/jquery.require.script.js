@@ -176,45 +176,40 @@ $.require.addLoader('script', (function() {
 		start: function() {
 
 			var task = this,
-				taskBefore = task.taskBefore;
+				module = task.module;
 
-			// If we're loading a module,
-			if (task.module) {
-
-				var moduleState = task.module.status;
-
-				// and the module has been resolved,
-				if (moduleState=="resolved") {
-
-					// then resolve task.
-					task.resolve();
-					return;
-				}
-
-				// and the module has been rejected,
-				if (moduleState=="rejected") {
-
-					// then reject task.
-					task.rejected();
-					return;
-				}
-
-				// and the module is loading
-				if (moduleState=="loading") {
-
-					// then resolve task when the module is resolved.
-					task.module
-						.then(
-							task.resolve,
-							task.reject,
-							task.notify
-						);
-
-					return;
-				}
+			// If module has already been loaded,
+			// we can skip the whole script loading process.
+			if (module && module.status!=="pending") {
+				task.waitForModule();
+				return;
 			}
 
-			task.load();				
+			// Else load the script that has this module.
+			task.load();
+		},
+
+		waitForModule: function() {
+
+			var task = this,
+				module = task.module;
+
+			// Listen to the events in the module
+			// without causing the module factory to execute.
+			module.then(
+				task.resolve,
+				task.reject,
+				task.notify
+			);
+
+			// When there is demand for this module,
+			// we will call the module's done method.
+			task.batch.whenRequired(function(){
+
+				// This will execute the module factory
+				// in case it wasn't executed before.
+				module.done(task.resolve);
+			});
 		},
 
 		load: function() {
@@ -273,9 +268,7 @@ $.require.addLoader('script', (function() {
 						// may perform additional require tasks.
 						if (task.module) {
 
-							task.module
-								.done(task.resolve)
-								.fail(task.reject);
+							task.waitForModule();
 
 						} else {
 
