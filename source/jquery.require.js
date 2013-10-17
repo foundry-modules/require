@@ -76,42 +76,61 @@ $.require = (function() {
 
 			$.each(self.batches, function(i, batch){
 
-				var count = {pending: 0, resolved: 0, rejected: 0, total: 0};
-
-				// Convert into real deferred object for require batch
-				// that was called without done().
-				if (batch.state===undefined) { batch.done(); }
-
+				var count = {pending: 0, resolved: 0, rejected: 0, ready: 0, total: 0},
+					messages = [];
 
 				// Calculate statistics
-				$.each(batch.taskList, function(i, task){
-					count[task.state()]++;
+				$.each(batch.tasks, function(i, task){
+
+					state = (task.module && task.module.status=="ready") ? "ready" : task.state();
+					count[state]++;
 					count.total++;
+
+					messages.push({
+						state: state,
+						content: '[' + state + '] ' + task.name 
+					});
 				});
 
-				var stat =
-				 "d:" + count.resolved +
-				" f:" + count.rejected +
-				" p:" + count.pending  +
-				" (" + count.total + ")";
+				var batchName = batch.id + ": " + batch.state() + " [" + count.resolved + "/" + count.total + "]";
 
-				var batchName = stat + " [" + batch.state() + "] " + batch.id;
+				if (filter && count[filter] < 1) return;
 
-				// Create log group
-				console.groupCollapsed(batchName);
+				if ($.IE) {
 
-				// Generate list
-				console.info("$.require.batches[\"" + batch.id + "\"]", batch);
+					console.log("$.require.batches[\"" + batch.id + "\"]");
+					$.each(messages, function(i, message){
+						console.log(message.content);
+					});
+					console.log("");
 
-				$.each(batch.taskList, function(i, task){
+				} else {
 
-					if (!filter || task.state()==filter) {
-						console.log('[' + task.name + ']', task.state());
-					}
-				});
+					// Create log group
+					console.groupCollapsed(batchName);
 
-				console.groupEnd(batchName);
+					// Generate list
+					console.log("$.require.batches[\"" + batch.id + "\"]", batch);
+
+					$.each(messages, function(i, message){
+
+						var state   = message.state,
+							content = message.content;
+
+						if (!filter || state==filter) {
+							switch (state) {
+								case 'pending' : console.warn(content);  break;
+								case 'rejected': console.error(content); break;
+								default        : console.info(content);  break;
+							}
+						}
+					});
+
+					console.groupEnd(batchName);
+				}
 			});
+
+			return "$.require.status(pending|resolved|rejected|ready);";
 		},
 
 		loaders: {},
