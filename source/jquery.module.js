@@ -221,9 +221,3 @@ $.isModule = function(module) {
 
 	return module && module instanceof Module;
 }
-
-Dispatch
-	.to("$FOUNDRY_NAMESPACE Modules")
-	.at(function(exports, manifest) {
-		$.module(manifest.name, exports);
-	});
